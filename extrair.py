@@ -18,6 +18,10 @@ def extrair_dados_precos(ticker):
         response = requests.get(url)
         response.raise_for_status()
 
+        if "Thank you" in response.text or "Information" in response.text:
+            constantes.logger.warning(f"Limite de API da Alpha Vantage atingido para {ticker}. Usando dados locais existentes.")
+            return None
+
         csv_data = StringIO(response.text)
         df_bruto = pd.read_csv(csv_data)
 

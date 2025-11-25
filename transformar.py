@@ -7,7 +7,7 @@ def transformar_dados_precos(df_bruto, id_acao):
     if df_bruto is None or df_bruto.empty:
         constantes.logger.warning("Dataframe vazio recebido para transformação, nada a fazer.")
         return None
-    
+
     constantes.logger.info("Iniciando transformação dos dados de preços...")
 
     try:
