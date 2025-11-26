@@ -1,11 +1,7 @@
 import constantes
-import salvar
-import extrair
-import transformar
-import extrair_noticias
-import transformar_noticias
-import salvar_noticias
-import ia_sentimento
+from etl import salvar, extrair, transformar
+from etl import extrair_noticias, transformar_noticias, salvar_noticias
+from analise import ia_sentimento
 
 def pipeline_completo():
     constantes.logger.info("--- INICIANDO PIPELINE STOCKINTEL ---")

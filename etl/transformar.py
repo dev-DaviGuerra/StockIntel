@@ -1,6 +1,5 @@
 import pandas as pd
 import constantes
-import extrair
 
 def transformar_dados_precos(df_bruto, id_acao):
 
