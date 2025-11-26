@@ -1,0 +1,15 @@
+.metric-card {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+h1, h2, h3 {
+    color: #00b4d8 !important;
+}
+
+a {
+    text-decoration: none;
+}
