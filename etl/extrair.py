@@ -10,7 +10,7 @@ def extrair_dados_precos(ticker):
             f"https://www.alphavantage.co/query?"
             f"function=TIME_SERIES_DAILY"
             f"&symbol={ticker}"
-            f"&outputsize=full"
+            f"&outputsize=compact"
             f"&datatype=csv"
             f"&apikey={constantes.API_KEY}"
             )
