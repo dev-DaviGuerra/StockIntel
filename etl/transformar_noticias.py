@@ -1,5 +1,6 @@
 import pandas as pd
 import constantes
+from etl.validar import validar_noticias, DataValidationError
 
 def transformar_dados_noticias(df_bruto):
     if df_bruto is None or df_bruto.empty:
@@ -40,11 +41,15 @@ def transformar_dados_noticias(df_bruto):
         colunas_existentes = [c for c in colunas_finais if c in df_transformado.columns]
         df_final = df_transformado[colunas_existentes]
 
-        df_final = df_final.drop_duplicates(subset=['url'])
+        # Validação de qualidade
+        df_final = validar_noticias(df_final)
 
-        constantes.logger.info("Transformação de notícias concluída.")
+        constantes.logger.info(f"Transformação de notícias concluída: {len(df_final)} válidas.")
         return df_final
 
+    except DataValidationError as e:
+        constantes.logger.error(f"Validação de notícias falhou: {e}")
+        return None
     except Exception as e:
         constantes.logger.error(f"Erro na transformação de notícias: {e}")
         return None

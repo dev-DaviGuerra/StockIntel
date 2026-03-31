@@ -1,0 +1,80 @@
+# StockIntel — Airflow local via Docker Compose
+# ------------------------------------------------
+# Uso:
+#   docker compose up -d
+#   Acesse: http://localhost:8080  (user: airflow / pass: airflow)
+#
+# Pré-requisito: crie um arquivo .env na raiz com DATABASE_URL e API_KEY.
+
+version: "3.9"
+
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.9.3
+  env_file: .env
+  environment:
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__FERNET_KEY: ""
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "true"
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    PYTHONPATH: /opt/stockintel
+  volumes:
+    - .:/opt/stockintel                    # projeto inteiro disponível
+    - ./dags:/opt/airflow/dags             # DAGs
+    - airflow_logs:/opt/airflow/logs
+  depends_on:
+    postgres:
+      condition: service_healthy
+  networks:
+    - stockintel_net
+
+services:
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
+    networks:
+      - stockintel_net
+
+  airflow-init:
+    <<: *airflow-common
+    command: >
+      bash -c "pip install -r /opt/stockintel/requirements.txt --quiet &&
+               airflow db migrate &&
+               airflow users create --username airflow --password airflow
+                 --firstname Admin --lastname User --role Admin --email admin@stockintel.local"
+    restart: "no"
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      retries: 5
+    restart: unless-stopped
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  airflow_logs:
+
+networks:
+  stockintel_net:
+    driver: bridge
