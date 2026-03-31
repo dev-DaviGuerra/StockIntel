@@ -10,7 +10,6 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from constantes import db_engine, logger
 
-# ─── PAGE CONFIG ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="StockIntel | Market Intelligence",
     page_icon="📈",
@@ -22,8 +21,6 @@ _css_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.css"
 with open(_css_path) as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-
-# ─── DATA LAYER ────────────────────────────────────────────────────────────────
 
 @st.cache_data(ttl=300, show_spinner=False)
 def get_tickers() -> list[dict]:
@@ -110,8 +107,6 @@ def compute_metrics(df: pd.DataFrame) -> dict:
         "n_days"    : len(df),
     }
 
-
-# ─── CHART HELPERS ─────────────────────────────────────────────────────────────
 
 _DARK = dict(
     paper_bgcolor="#0a0e1a",
@@ -235,8 +230,6 @@ def chart_returns_dist(df: pd.DataFrame) -> go.Figure:
     return fig
 
 
-# ─── SIDEBAR ───────────────────────────────────────────────────────────────────
-
 with st.sidebar:
     st.markdown("""
     <div class="sidebar-logo">
@@ -303,8 +296,6 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 
-# ─── MAIN ──────────────────────────────────────────────────────────────────────
-
 if not db_engine:
     st.error("Sem conexão com o banco de dados. Verifique o arquivo .env.")
     st.stop()
@@ -322,7 +313,6 @@ if df_prices.empty:
 
 m = compute_metrics(df_prices)
 
-# ── Asset Header ──────────────────────────────────────────────────────────────
 sign  = "+" if m["change"] >= 0 else ""
 color = "#00ff88" if m["change"] >= 0 else "#ff4466"
 st.markdown(f"""
@@ -345,7 +335,6 @@ st.markdown(f"""
 <div class="header-rule"></div>
 """, unsafe_allow_html=True)
 
-# ── KPIs ─────────────────────────────────────────────────────────────────────
 kpis = [
     ("Preço Atual",        f"${m['price']:,.2f}",           None),
     ("Variação Diária",    f"{sign}{m['change_pct']:.2f}%", m["change_pct"]),
@@ -366,7 +355,6 @@ for col, (label, value, signal) in zip(st.columns(6), kpis):
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ── Price Chart ───────────────────────────────────────────────────────────────
 st.markdown(
     '<p class="section-title">Gráfico de Preços &nbsp;·&nbsp; OHLCV</p>',
     unsafe_allow_html=True,
@@ -377,7 +365,6 @@ st.plotly_chart(
     config={"displaylogo": False, "modeBarButtonsToRemove": ["autoScale2d"]},
 )
 
-# ── Bottom Row ────────────────────────────────────────────────────────────────
 col_gauge, col_dist, col_news = st.columns([1, 1, 2])
 
 with col_gauge:
@@ -471,7 +458,6 @@ with col_news:
     else:
         st.info("Nenhuma notícia disponível.")
 
-# ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="si-footer">
   StockIntel &nbsp;·&nbsp; Market Intelligence Platform &nbsp;·&nbsp;

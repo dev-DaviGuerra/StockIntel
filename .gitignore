@@ -11,3 +11,5 @@ __pycache__/
 Thumbs.db
 
 *.log
+
+airflow_home/
